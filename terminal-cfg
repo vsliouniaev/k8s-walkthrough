@@ -1,0 +1,7 @@
+export KUBE_EDITOR="code --wait"
+
+k() { kubectl "$@"; }
+kg() { kubectl get "$@"; }
+kd() { kubectl describe "$@"; }
+ka() { kubectl apply "$@"; }
+kns() { if [ $# -eq 0 ]; then kubectl get ns; else kubectl config set-context "$(kubectl config current-context)" --namespace="$1"; fi; }

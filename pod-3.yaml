@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-3
+spec:
+  containers:
+  - name: one
+    image: demo:1
+    args:
+    - --pod=1
+    - --container=container1
+    - --listen=:8080
+    ports:
+    - containerPort: 8080
+    volumeMounts:
+      - name: scratch
+        mountPath: /tmp
+      - name: config
+        mountPath: /etc/app-config
+  - name: two
+    image: demo:1
+    args:
+      - --pod=1
+      - --container=container2
+      - --listen=:8081
+    ports:
+    - containerPort: 8081
+    volumeMounts:
+      - name: scratch
+        mountPath: /tmp
+      - name: config
+        mountPath: /etc/app-config
+  volumes:
+  - name: scratch
+    emptyDir: {}
+  - name: config
+    configMap:
+      defaultMode: 420
+      name: app-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  file.conf: "Some file content!"
+
+

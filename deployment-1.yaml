@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: demo-1
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: demo-1
+    spec:
+      containers:
+      - name: one
+        image: demo:1
+        args:
+        - --pod=$(POD_NAME)
+        - --container=container1
+        - --listen=:8080
+        ports:
+        - containerPort: 8080
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+      - name: two
+        image: demo:1
+        args:
+          - --pod=$(POD_NAME)
+          - --container=container2
+          - --listen=:8081
+        ports:
+        - containerPort: 8081
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name

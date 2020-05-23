@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-demo-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: my-demo-app
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: my-demo-app
+    spec:
+      containers:
+      - name: demo
+        image: demo:1
+        args:
+        - --pod=$(POD_NAME)
+        - --container=demo
+        - --call=http://my-demo-app
+        ports:
+        - containerPort: 8080
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-demo-app
+  labels:
+    app.kubernetes.io/name: my-demo-app
+spec:
+  ports:
+  - port: 80
+    targetPort: 8080
+  selector:
+    app.kubernetes.io/name: my-demo-app
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: my-demo-app
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        backend:
+          serviceName: my-demo-app
+          servicePort: 80
