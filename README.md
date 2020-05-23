@@ -283,7 +283,7 @@ spec:
 ```
 
 ```sh
-kubectl apply -f https://raw.githubusercontent.com/vsliouniaev/k8s-walkthrough/master/service-1.yaml
+kubectl apply -f https://raw.githubusercontent.com/vsliouniaev/k8s-walkthrough/master/pod-4.yaml
 
 kubectl port-forward pod-4 8080
 ```
@@ -298,7 +298,8 @@ We'll need to expose some ports from the containers to get this to work, so let'
 
 ```sh
 kind delete cluster
-kind create cluster --config https://raw.githubusercontent.com/vsliouniaev/k8s-walkthrough/master/kind.yaml
+curl https://raw.githubusercontent.com/vsliouniaev/k8s-walkthrough/master/kind.yaml -o kind.yaml
+kind create cluster --config kind.yaml
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/kind/deploy.yaml
 ```
 
