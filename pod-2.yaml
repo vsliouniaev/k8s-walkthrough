@@ -7,14 +7,16 @@ spec:
   - name: one
     image: demo:1
     args:
-    - --pod=1
+    - --pod=2
     - --container=container1
     - --listen=:8080
+    - --call=http://localhost:8081
     ports:
     - containerPort: 8080
   - name: two
     image: demo:1
     args:
-      - --pod=1
+      - --pod=2
       - --container=container2
       - --listen=:8081
+      - --call=http://localhost:8080

@@ -7,9 +7,10 @@ spec:
   - name: one
     image: demo:1
     args:
-    - --pod=1
+    - --pod=3
     - --container=container1
     - --listen=:8080
+    - --call=http://localhost:8081
     ports:
     - containerPort: 8080
     volumeMounts:
@@ -20,9 +21,10 @@ spec:
   - name: two
     image: demo:1
     args:
-      - --pod=1
+      - --pod=3
       - --container=container2
       - --listen=:8081
+      - --call=http://localhost:8080
     ports:
     - containerPort: 8081
     volumeMounts:
@@ -44,5 +46,3 @@ metadata:
   name: app-config
 data:
   file.conf: "Some file content!"
-
-

@@ -88,17 +88,19 @@ spec:
   - name: one
     image: demo:1
     args:
-    - --pod=1
+    - --pod=2
     - --container=container1
     - --listen=:8080
+    - --call=http://localhost:8081
     ports:
     - containerPort: 8080
   - name: two
     image: demo:1
     args:
-      - --pod=1
+      - --pod=2
       - --container=container2
       - --listen=:8081
+      - --call=http://localhost:8080
 ```
 
 ```sh
@@ -129,9 +131,10 @@ spec:
   - name: one
     image: demo:1
     args:
-    - --pod=1
+    - --pod=3
     - --container=container1
     - --listen=:8080
+    - --call=http://localhost:8081
     ports:
     - containerPort: 8080
     volumeMounts:
@@ -142,9 +145,10 @@ spec:
   - name: two
     image: demo:1
     args:
-      - --pod=1
+      - --pod=3
       - --container=container2
       - --listen=:8081
+      - --call=http://localhost:8080
     ports:
     - containerPort: 8081
     volumeMounts:
@@ -212,6 +216,7 @@ spec:
         - --pod=$(POD_NAME)
         - --container=container1
         - --listen=:8080
+        - --call=http://localhost:8081
         ports:
         - containerPort: 8080
         env:
@@ -226,6 +231,7 @@ spec:
           - --pod=$(POD_NAME)
           - --container=container2
           - --listen=:8081
+          - --call=http://localhost:8080
         ports:
         - containerPort: 8081
         env:
@@ -244,7 +250,7 @@ If you `kubectl edit` the deployment to increase the number of `replicas`, more 
 
 # Services
 
-It's all good running a bunch of replicas, but how do we communicate with them in a way that doesn't require us to call each one directly? Kubernetes uses low-level network routing to take care of this, doing it all with what's commonly called "iptables magic". Other solutions (like DNS for example), just wouldn't be fast enough.
+It's all good running a bunch of replicas, but how do we communicate with them in a way that doesn't require us to call each one directly? Kubernetes uses low-level network routing to take care of this, doing it all with what's commonly called "iptables magic". Other solutions (like DNS for example), just wouldn't be fast enough at updating routing informaiton.
 
 Let's add a service that targets the deployment. Note the `selector` here matches the labels we put on the pod spec in the `deployment`
 
@@ -363,18 +369,23 @@ spec:
   selector:
     app.kubernetes.io/name: my-demo-app
 ---
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
   name: my-demo-app
 spec:
   rules:
   - http:
       paths:
       - path: /
+        pathType: Prefix
         backend:
-          serviceName: my-demo-app
-          servicePort: 80
+          service:
+            name: my-demo-app
+            port:
+              number: 80
 
 ```
 
